@@ -1,0 +1,37 @@
+# Python bytecode
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+myvenv/
+env/
+ENV/
+.venv
+
+# Database
+db.sqlite3
+*.db
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Static files
+staticfiles/
+media/
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
