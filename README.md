@@ -16,7 +16,10 @@ A **production-grade** pastebin service with time-based expiry and view-count li
 - **Backend**: Python Django + Django REST Framework
 - **Database**: PostgreSQL
 - **Frontend**: React.js (Vite)
-- **Deployment**: Railway or Render
+- **Deployment**: Railway or Render  
+
+https://pastebin-umber-three.vercel.app/  
+https://pastebin-production-e47c.up.railway.app
 
 ## Features
 
