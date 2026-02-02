@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.db import connection
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,31 +22,41 @@ class HealthCheckView(APIView):
             return Response({"ok": False}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class PasteView(APIView):
     """Handle paste creation and retrieval."""
     
     def post(self, request):
         """Create a new paste with optional TTL and view limit."""
-        serializer = CreatePasteSerializer(data=request.data)
-        
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        data = serializer.validated_data
-        service = PasteService()
-        paste = service.create_paste(
-            content=data['content'],
-            ttl_seconds=data.get('ttl_seconds'),
-            max_views=data.get('max_views')
-        )
-        
-        frontend_url = settings.FRONTEND_URL
-        paste_url = f"{frontend_url}/p/{paste.id}"
-        
-        return Response(
-            {"id": str(paste.id), "url": paste_url},
-            status=status.HTTP_201_CREATED
-        )
+        try:
+            serializer = CreatePasteSerializer(data=request.data)
+            
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            data = serializer.validated_data
+            service = PasteService()
+            paste = service.create_paste(
+                content=data['content'],
+                ttl_seconds=data.get('ttl_seconds'),
+                max_views=data.get('max_views')
+            )
+            
+            frontend_url = settings.FRONTEND_URL
+            paste_url = f"{frontend_url}/p/{paste.id}"
+            
+            return Response(
+                {"id": str(paste.id), "url": paste_url},
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            import traceback
+            print(f"Error creating paste: {str(e)}")
+            print(traceback.format_exc())
+            return Response(
+                {"error": "Internal server error", "detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class PasteDetailView(APIView):
